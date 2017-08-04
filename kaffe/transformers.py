@@ -72,7 +72,7 @@ class DataInjector(object):
         # potential for future issues.
         # The Caffe-backend does not suffer from this problem.
         data = list(data)
-        squeeze_indices = [1]  # Squeeze biases.
+        squeeze_indices = [1]  # Squeeze bias.
         if node.kind == NodeKind.InnerProduct:
             squeeze_indices.append(0)  # Squeeze FC.
         for idx in squeeze_indices:
@@ -275,9 +275,9 @@ class ParameterNamer(object):
             if node.data is None:
                 continue
             if node.kind in (NodeKind.Convolution, NodeKind.InnerProduct):
-                names = ('weights',)
+                names = ('kernel',)
                 if node.parameters.bias_term:
-                    names += ('biases',)
+                    names += ('bias',)
             elif node.kind == NodeKind.BatchNorm:
                 names = ('mean', 'variance')
                 if len(node.data) == 4:

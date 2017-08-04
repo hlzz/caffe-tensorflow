@@ -124,7 +124,7 @@ class Network(object):
         # Convolution for a given input and kernel
         convolve = lambda i, k: tf.nn.conv2d(i, k, [1, s_h, s_w, 1], padding=padding)
         with tf.variable_scope(name) as scope:
-            kernel = self.make_var('weights', shape=[k_h, k_w, c_i / group, c_o])
+            kernel = self.make_var('kernel', shape=[k_h, k_w, c_i / group, c_o])
             if group == 1:
                 # This is the common-case. Convolve the input without any further complications.
                 output = convolve(input, kernel)
@@ -135,10 +135,10 @@ class Network(object):
                 output_groups = [convolve(i, k) for i, k in zip(input_groups, kernel_groups)]
                 # Concatenate the groups
                 output = tf.concat(3, output_groups)
-            # Add the biases
+            # Add the bias
             if biased:
-                biases = self.make_var('biases', [c_o])
-                output = tf.nn.bias_add(output, biases)
+                bias = self.make_var('bias', [c_o])
+                output = tf.nn.bias_add(output, bias)
             if relu:
                 # ReLU non-linearity
                 output = tf.nn.relu(output, name=scope.name)
@@ -195,10 +195,10 @@ class Network(object):
                 feed_in = tf.reshape(input, [-1, dim])
             else:
                 feed_in, dim = (input, input_shape[-1].value)
-            weights = self.make_var('weights', shape=[dim, num_out])
-            biases = self.make_var('biases', [num_out])
+            weights = self.make_var('kernel', shape=[dim, num_out])
+            bias = self.make_var('bias', [num_out])
             op = tf.nn.relu_layer if relu else tf.nn.xw_plus_b
-            fc = op(feed_in, weights, biases, name=scope.name)
+            fc = op(feed_in, weights, bias, name=scope.name)
             return fc
 
     @layer
