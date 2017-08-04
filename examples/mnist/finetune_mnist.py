@@ -30,8 +30,8 @@ def gen_data_batch(source):
         yield np.array(image_batch), np.array(label_batch)
 
 
-images = tf.placeholder(tf.float32, [batch_size, 28, 28, 1])
-labels = tf.placeholder(tf.float32, [batch_size, 10])
+images = tf.placeholder(tf.float32, [None, 28, 28, 1])
+labels = tf.placeholder(tf.float32, [None, 10])
 net = MyNet({'data': images})
 
 ip2 = net.layers['ip2']
@@ -49,8 +49,11 @@ with tf.Session() as sess:
     data_gen = gen_data_batch(mnist.train)
     for i in range(1000):
         np_images, np_labels = next(data_gen)
-        feed = {images: np_images, labels: np_labels}
+        np_loss, np_pred, _ = sess.run([loss, pred, train_op], feed_dict={images: np_images, labels: np_labels})
 
-        np_loss, np_pred, _ = sess.run([loss, pred, train_op], feed_dict=feed)
         if i % 10 == 0:
-            print('Iteration: ', i, np_loss)
+            correct_prediction = tf.equal(tf.argmax(pred, 1), tf.argmax(labels, 1))
+            accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+            np_accuracy = sess.run(accuracy, feed_dict={images: np_images, labels: np_labels})
+            print('Iteration: ', i, np_loss, np_accuracy)
+
