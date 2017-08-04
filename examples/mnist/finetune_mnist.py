@@ -35,7 +35,7 @@ labels = tf.placeholder(tf.float32, [batch_size, 10])
 net = MyNet({'data': images})
 
 ip2 = net.layers['ip2']
-pred = tf.nn.softmax(ip2)
+pred = net.layers['prob']
 
 loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=ip2, labels=labels), 0)
 opt = tf.train.RMSPropOptimizer(0.001)
